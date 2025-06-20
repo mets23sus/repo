@@ -1,0 +1,38 @@
+---
+# Установка Nginx
+- name: Install nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+# Настраиваем прокси на порт 3000
+- name: Configure proxy to forward :3000 to vm2:80
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/sites-available/default
+    line: |
+      server {
+          listen 3000;
+          location / {
+              proxy_pass http://51.250.89.217;  # IP vm2
+          }
+      }
+    create: yes
+
+# Удаляем стандартный конфиг
+- name: Remove default config
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+# Активируем наш конфиг
+- name: Enable new config
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+
+# Перезапуск Nginx
+- name: Restart nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted

@@ -1,0 +1,18 @@
+# inventory.yml
+all:
+  hosts:
+    vm1:
+      ansible_host: 158.160.111.90
+      ansible_user: ubuntu  # Замените на вашего пользователя (например, ubuntu)
+      ansible_ssh_private_key_file: ~/.ssh/id_ecdsa  # Путь к вашему SSH-ключу
+      target_hostname: vm1
+    vm2:
+      ansible_host: 51.250.89.217
+      ansible_user: ubuntu  # хуяк
+      ansible_ssh_private_key_file: ~/.ssh/id_ecdsa  # Путь к вашему SSH-ключу
+      target_hostname: vm2
+    vm3:
+      ansible_host: 158.160.96.166
+      ansible_user: ubuntu
+      ansible_ssh_private_key_file: ~/.ssh/id_ecdsa
+      target_hostname: vm3 

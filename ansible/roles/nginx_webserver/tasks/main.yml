@@ -1,0 +1,26 @@
+---
+# Установка Nginx
+- name: Install nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+# Генерация index.html с использованием шаблона
+- name: Create index.html with hostname
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+
+# Обновление конфигурации Nginx
+- name: Update root html path
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/sites-available/default
+    regexp: '^root /var/www/html;'
+    line: 'root /var/www/html;'
+    backrefs: yes
+
+# Перезапуск Nginx
+- name: Restart nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted

@@ -1,0 +1,22 @@
+---
+# Меняем имя хоста на FQDN (полное доменное имя)
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ target_hostname }}"
+
+# Обновляем список пакетов
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+# Устанавливаем нужные утилиты
+- name: Install common packages
+  ansible.builtin.apt:
+    name:
+      - net-tools
+      - dnsutils
+      - wget
+      - curl
+      - mc
+      - rsync
+    state: present

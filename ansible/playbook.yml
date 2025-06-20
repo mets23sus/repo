@@ -1,0 +1,18 @@
+---
+# Часть 1: Настройка всех ВМ
+- hosts: all
+  become: yes
+  roles:
+    - setup_vm
+
+# Часть 2: Настройка отдающего Nginx на vm2
+- hosts: vm2
+  become: yes
+  roles:
+    - nginx_webserver
+
+# Часть 3: Настройка прокси на vm1
+- hosts: vm1
+  become: yes
+  roles:
+    - nginx_proxy
