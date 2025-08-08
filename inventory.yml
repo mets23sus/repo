@@ -1,0 +1,15 @@
+# inventory.yml
+all:
+  hosts:
+    node_vm2:
+      ansible_host: 10.130.0.3
+      ansible_user: rinn  # Замените на вашего пользователя (например, ubuntu)
+      ansible_ssh_private_key_file: ~/.ssh/id_ed25519  # Путь к вашему SSH-ключу
+    node_vm3:
+      ansible_host: 10.130.0.25
+      ansible_user: rinn  # хуяк
+      ansible_ssh_private_key_file: ~/.ssh/id_ed25519  # Путь к вашему SSH-ключу
+    node_vm4:
+      ansible_host: 10.130.0.6
+      ansible_user: rinn  # хуяк
+      ansible_ssh_private_key_file: ~/.ssh/id_ed25519  # Путь к вашему SSH-ключу

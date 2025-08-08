@@ -1,0 +1,8 @@
+# playbook.yml
+---
+- name: подготовка нод к развертыванию кластера k8s
+  hosts: all
+  become: true
+  roles:
+    - k8s
+ 
