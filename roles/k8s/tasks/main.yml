@@ -43,6 +43,16 @@
     update_cache: yes
   become: yes
 
+- name: Снять hold с пакетов Kubernetes
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: install
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+  become: yes
+
 - name: Ставим пакеты k8s
   ansible.builtin.apt:
     name:
