@@ -12,10 +12,10 @@
   become: yes
 
 - name: Созадем директорию
-    file:
-     path: /etc/apt/keyrings
-     state: directory
-     mode: '0755'
+  file:
+   path: /etc/apt/keyrings
+   state: directory
+   mode: '0755'
   become: yes
   
 - name: Добавляем Kubernetes GPG key
@@ -28,14 +28,14 @@
   register: gpg_key
       
 - name: De-armor GPG key
-      command: gpg --dearmor /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  command: gpg --dearmor /etc/apt/keyrings/kubernetes-apt-keyring.gpg
       args:
         creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
   become: yes
   when: gpg_key.changed
 
 - name: Add Kubernetes APT repository
-      apt_repository:
+  apt_repository:
         repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /"
         state: present
         filename: kubernetes
@@ -54,7 +54,7 @@
 
 
 - name: Запрет автообновления пакетов
-      dpkg_selections:
+  dpkg_selections:
         name: "{{ item }}"
         selection: hold
       loop:
@@ -64,7 +64,7 @@
   become: yes
 
   - name: Ставим Докер в автозапуск
-      service:
+    service:
         name: docker
         enabled: yes
     become: yes
