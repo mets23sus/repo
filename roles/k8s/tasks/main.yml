@@ -62,3 +62,15 @@
         - kubeadm
         - kubectl
   become: yes
+
+  - name: Ставим Докер в автозапуск
+      service:
+        name: docker
+        enabled: yes
+    become: yes
+
+    - name: Включаем Докер
+      service:
+        name: docker
+        state: started
+    become: yes
