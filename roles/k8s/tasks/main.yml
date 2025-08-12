@@ -1,16 +1,16 @@
 ---
 # /nextcloud-ansible/roles/nginx/tasks/main.yml
 
-#- name: Ставим пакеты
- # ansible.builtin.apt:
-  #  name:
-   #   - docker.io
-    #  - ca-certificates
-     # - apt-transport-https
-      #- curl
-    #state: present
-    #update_cache: yes
-  #become: yes
+- name: Ставим пакеты
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - ca-certificates
+      - apt-transport-https
+      - curl
+    state: present
+    update_cache: yes
+  become: yes
 
 - name: Создаем директорию
   file:
