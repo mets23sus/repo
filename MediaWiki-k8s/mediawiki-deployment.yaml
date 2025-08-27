@@ -1,0 +1,60 @@
+apiVersion: apps/v1  # Версия API.
+kind: Deployment  # Тип: Deployment для stateless приложений.
+metadata:
+  name: mediawiki  # Имя.
+  namespace: mediawiki  # Namespace.
+spec:
+  replicas: 1  # Количество реплик.
+  selector:
+    matchLabels:
+      app: mediawiki  # Селектор.
+  template:
+    metadata:
+      labels:
+        app: mediawiki  # Лейблы подов.
+    spec:
+      containers:
+      - name: mediawiki  # Имя контейнера.
+        image: mediawiki:1.39  # Официальный образ MediaWiki (версия 1.39).
+        ports:
+        - containerPort: 80  # Порт HTTP.
+        resources:  # Ресурсы.
+          requests:  # Запросы (минимальные).
+            memory: "256Mi"  # 256 МБ памяти.
+            cpu: "250m"  # 0.25 CPU.
+          limits:  # Лимиты (максимальные).
+            memory: "1Gi"  # 512 МБ памяти.
+            cpu: "1"  # 0.5 CPU.
+        livenessProbe:  # Проба живучести.
+          httpGet:
+            path: /  # Путь проверки.
+            port: 80  # Порт.
+          initialDelaySeconds: 30  # Задержка.
+          periodSeconds: 10  # Интервал.
+        readinessProbe:  # Проба готовности.
+          httpGet:
+            path: /  # Путь.
+            port: 80  # Порт.
+          initialDelaySeconds: 5  # Задержка.
+          periodSeconds: 5  # Интервал.
+        volumeMounts:  # Монтирование тома.
+        - mountPath: /var/www/html/LocalSettings.php  # Путь к файлу в контейнере.
+          name: config-volume  # Имя тома.
+          subPath: LocalSettings.php  # Имя файла в PVC.
+      volumes:  # Определение томов.
+      - name: config-volume  # Имя тома.
+        persistentVolumeClaim:
+          claimName: mediawiki-config-pvc  # Ссылка на PVC.
+---
+apiVersion: v1  # Версия API.
+kind: Service  # Тип: Service.
+metadata:
+  name: mediawiki  # Имя сервиса.
+  namespace: mediawiki  # Namespace.
+spec:
+  selector:
+    app: mediawiki  # Селектор подов.
+  ports:
+  - port: 80  # Порт сервиса.
+    targetPort: 80  # Порт в поде.
+  type: ClusterIP  # Тип: внутренний сервис.

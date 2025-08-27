@@ -1,0 +1,12 @@
+apiVersion: v1  # Версия API.
+kind: PersistentVolumeClaim  # Тип: PVC.
+metadata:
+  name: postgres-pvc  # Имя PVC.
+  namespace: mediawiki  # Namespace.
+spec:
+  accessModes:
+    - ReadWriteOnce  # Режим доступа.
+  resources:
+    requests:
+      storage: 10Gi  # Запрос размера.
+  storageClassName: local-storage  # Класс хранилища.

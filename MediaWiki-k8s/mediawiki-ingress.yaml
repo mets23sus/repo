@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1  # Версия API для Ingress.
+kind: Ingress  # Тип: Ingress.
+metadata:
+  name: mediawiki-ingress  # Имя.
+  namespace: mediawiki  # Namespace.
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /  # Аннотация для корректной маршрутизации.
+spec:
+  ingressClassName: nginx  # Класс: nginx (для ingress-nginx).
+  rules:
+  - http:  # HTTP-правила.
+      paths:
+      - path: /  # Путь: корень.
+        pathType: Prefix  # Тип пути.
+        backend:
+          service:
+            name: mediawiki  # Имя сервиса MediaWiki.
+            port:
+              number: 80  # Порт сервиса.
