@@ -49,15 +49,10 @@ spec:
         volumeMounts:  # Монтирование volume.
         - mountPath: /var/lib/postgresql/data  # Путь в контейнере.
           name: postgres-storage  # Имя volume.
-  volumeClaimTemplates:  # Шаблон PVC для StatefulSet.
-  - metadata:
-      name: postgres-storage  # Имя.
-    spec:
-      accessModes: ["ReadWriteOnce"]  # Режим.
-      resources:
-        requests:
-          storage: 5Gi  # Размер.
-      storageClassName: local-storage  # Класс.
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
 ---
 apiVersion: v1  # Версия API для Service.
 kind: Service  # Тип: Service.
