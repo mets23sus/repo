@@ -19,7 +19,7 @@ spec:
         command: ['sh', '-c', 'until pg_isready -h postgres -p 5432 -U mediawiki_user; do echo waiting for postgres; sleep 2; done;']
       containers:
       - name: mediawiki
-        image: bitnami/mediawiki:1.39
+        image: ghcr.io/bitnami/mediawiki:1.39
         ports:
         - containerPort: 8080
         env:
