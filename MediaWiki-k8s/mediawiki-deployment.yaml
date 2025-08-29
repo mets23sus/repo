@@ -19,7 +19,8 @@ spec:
         command: ['sh', '-c', 'until pg_isready -h postgres -p 5432 -U mediawiki_user; do echo waiting for postgres; sleep 2; done;']
       containers:
       - name: mediawiki
-        image: ghcr.io/bitnami/mediawiki:1.39
+        image: docker.io/bitnami/mediawiki:1.39.4
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         env:
@@ -55,7 +56,7 @@ spec:
         resources:
           requests:
             memory: "512Mi"
-            cpu: "250m"
+          cpu: "250m"
           limits:
             memory: "1Gi"
             cpu: "1"
