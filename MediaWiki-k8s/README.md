@@ -1,75 +1,58 @@
-# MediaWiki в Kubernetes
+# MediaWiki в Kubernetes (MySQL)
 
-Этот проект развертывает MediaWiki с PostgreSQL в Kubernetes кластере.
+Этот проект развертывает MediaWiki с MySQL в Kubernetes кластере.
 
 ## Компоненты
 
-- **PostgreSQL 15** - база данных
-- **MediaWiki 1.39** - вики-платформа (образ Bitnami с поддержкой PostgreSQL)
-- **Nginx Ingress** - для внешнего доступа
-- **Local Storage** - для персистентного хранения данных
+- **MySQL 8.0** — база данных (StatefulSet)
+- **MediaWiki 1.39** — вики-платформа (образ Bitnami)
+- **Nginx Ingress** — внешний доступ
+- **Local Storage** — локальные PV на `node2`
 
 ## Предварительные требования
 
-1. Kubernetes кластер с установленным nginx-ingress
+1. Кластер Kubernetes с ingress-nginx
 2. Узел `node2` с директориями:
-   - `/mnt/data/postgres` - для PostgreSQL данных
-   - `/mnt/data/mediawiki` - для MediaWiki данных
+   - `/mnt/data/mysql` — данные MySQL
+   - `/mnt/data/mediawiki` — данные MediaWiki
 
 ## Развертывание
 
 ```bash
-# Создание директорий на узле node2
-sudo mkdir -p /mnt/data/postgres /mnt/data/mediawiki
-sudo chmod 755 /mnt/data/postgres /mnt/data/mediawiki
+# Подготовка директорий на node2
+ssh node2 'sudo mkdir -p /mnt/data/mysql /mnt/data/mediawiki && sudo chmod 777 /mnt/data/mysql /mnt/data/mediawiki'
 
-# Применение всех ресурсов
-kubectl apply -k .
+# Применение манифестов (kustomize)
+kubectl apply -k MediaWiki-k8s/
 
 # Проверка статуса
 kubectl get all -n mediawiki
-kubectl get pv,pvc -n mediawiki
+kubectl get pv,pvc -A | grep -E 'mediawiki|mysql'
 ```
 
 ## Доступ
 
-После развертывания MediaWiki будет доступна по адресу, указанному в Ingress.
+После старта MediaWiki будет доступна через Ingress (`mediawiki-ingress`).
 
-**Данные для входа:**
-- Пользователь: `admin`
-- Пароль: `admin123`
+## Переменные/секреты
 
-## Устранение неполадок
+Секрет `mysql-secret` содержит:
+- `mysql-root-password`, `mysql-user`, `mysql-password`, `mysql-database`
 
-### Проверка логов
+## Траблшутинг
+
 ```bash
-kubectl logs -f deployment/mediawiki -n mediawiki
-kubectl logs -f statefulset/postgres -n mediawiki
+# Логи MySQL
+kubectl logs -f statefulset/mysql -n mediawiki
+
+# Логи MediaWiki
+kubectl logs -f deploy/mediawiki -n mediawiki
+
+# Проверка готовности БД
+kubectl exec -it deploy/mediawiki -n mediawiki -c init-mediawiki -- mysqladmin ping -h mysql --silent
 ```
 
-### Проверка подключения к БД
-```bash
-kubectl exec -it deployment/mediawiki -n mediawiki -- pg_isready -h postgres -p 5432 -U mediawiki_user
-```
+## Примечания
 
-### Пересоздание секретов
-```bash
-# Удаление и пересоздание секрета
-kubectl delete secret postgres-secret -n mediawiki
-kubectl apply -f postgres-secret.yaml
-```
-
-## Основные изменения
-
-1. **Использован образ Bitnami MediaWiki** - содержит PostgreSQL клиент
-2. **Добавлены переменные окружения** - для автоматической настройки
-3. **Создан init-контейнер** - для ожидания готовности PostgreSQL
-4. **Исправлен StorageClass** - убраны лишние пробелы
-5. **Добавлены секреты** - для безопасного хранения паролей
-6. **Улучшена конфигурация** - увеличены ресурсы и таймауты
-
-## Безопасность
-
-- Пароли хранятся в секретах Kubernetes
-- Рекомендуется изменить пароли по умолчанию
-- Используйте HTTPS в продакшене
+- Postgres манифесты удалены из kustomization; используется MySQL.
+- Если Docker Hub требует авторизацию, используйте imagePullSecret и привяжите к ServiceAccount.

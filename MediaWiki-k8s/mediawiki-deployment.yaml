@@ -13,10 +13,12 @@ spec:
       labels:
         app: mediawiki  # Лейблы подов.
     spec:
+      imagePullSecrets:
+      - name: dockerhub-cred
       initContainers:
       - name: init-mediawiki
-        image: postgres:15
-        command: ['sh', '-c', 'until pg_isready -h postgres -p 5432 -U mediawiki_user; do echo waiting for postgres; sleep 2; done;']
+        image: mysql:8.0
+        command: ['sh', '-c', 'until mysqladmin ping -h mysql --silent; do echo waiting for mysql; sleep 2; done;']
       containers:
       - name: mediawiki
         image: docker.io/bitnami/mediawiki:1.39.4
@@ -24,25 +26,27 @@ spec:
         ports:
         - containerPort: 8080
         env:
+        - name: MEDIAWIKI_DATABASE_TYPE
+          value: mysql
         - name: MEDIAWIKI_DATABASE_HOST
-          value: postgres
+          value: mysql
         - name: MEDIAWIKI_DATABASE_PORT_NUMBER
-          value: "5432"
+          value: "3306"
         - name: MEDIAWIKI_DATABASE_NAME
           valueFrom:
             secretKeyRef:
-              name: postgres-secret
-              key: postgres-db
+              name: mysql-secret
+              key: mysql-database
         - name: MEDIAWIKI_DATABASE_USER
           valueFrom:
             secretKeyRef:
-              name: postgres-secret
-              key: postgres-user
+              name: mysql-secret
+              key: mysql-user
         - name: MEDIAWIKI_DATABASE_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: postgres-secret
-              key: postgres-password
+              name: mysql-secret
+              key: mysql-password
         - name: MEDIAWIKI_USERNAME
           value: admin
         - name: MEDIAWIKI_PASSWORD

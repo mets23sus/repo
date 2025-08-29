@@ -6,10 +6,12 @@ namespace: mediawiki
 resources:
   - namespace.yaml
   - local-storageclass.yaml
-  - postgres-secret.yaml
-  - postgres-pv.yaml
-  - postgres-pvc.yaml
-  - postgres-statefulset-svc.yaml
+  # MySQL
+  - mysql-secret.yaml
+  - mysql-pv.yaml
+  - mysql-pvc.yaml
+  - mysql-statefulset-svc.yaml
+  # MediaWiki
   - mediawiki-pv.yaml
   - mediawiki-pvc.yaml
   - mediawiki-deployment.yaml
