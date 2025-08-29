@@ -15,7 +15,7 @@ spec:
     spec:
       initContainers:
       - name: init-mediawiki
-        image: busybox:1.35
+        image: postgres:15
         command: ['sh', '-c', 'until pg_isready -h postgres -p 5432 -U mediawiki_user; do echo waiting for postgres; sleep 2; done;']
       containers:
       - name: mediawiki

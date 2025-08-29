@@ -14,6 +14,8 @@ spec:
       labels:
         app: postgres  # Лейблы подов.
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: node2
       containers:
       - name: postgres  # Имя контейнера.
         image: postgres:15  # Официальный image PostgreSQL (версия 15).
