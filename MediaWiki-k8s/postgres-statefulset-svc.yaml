@@ -24,9 +24,15 @@ spec:
               name: postgres-secret  # Из секрета.
               key: postgres-password  # Ключ.
         - name: POSTGRES_DB  # Имя БД.
-          value: mediawiki  # Значение: mediawiki.
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-db
         - name: POSTGRES_USER  # Пользователь БД.
-          value: mediawiki_user  # Значение (можно изменить).
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-user
         ports:
         - containerPort: 5432  # Порт БД.
         resources:  # Ресурсы.

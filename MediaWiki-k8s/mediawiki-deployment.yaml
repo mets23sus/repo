@@ -13,48 +13,81 @@ spec:
       labels:
         app: mediawiki  # Лейблы подов.
     spec:
+      initContainers:
+      - name: init-mediawiki
+        image: busybox:1.35
+        command: ['sh', '-c', 'until pg_isready -h postgres -p 5432 -U mediawiki_user; do echo waiting for postgres; sleep 2; done;']
       containers:
-      - name: mediawiki  # Имя контейнера.
-        image: mediawiki:1.39  # Официальный образ MediaWiki (версия 1.39).
+      - name: mediawiki
+        image: bitnami/mediawiki:1.39
         ports:
-        - containerPort: 80  # Порт HTTP.
-        resources:  # Ресурсы.
-          requests:  # Запросы (минимальные).
-            memory: "256Mi"  # 256 МБ памяти.
-            cpu: "250m"  # 0.25 CPU.
-          limits:  # Лимиты (максимальные).
-            memory: "1Gi"  # 512 МБ памяти.
-            cpu: "1"  # 0.5 CPU.
-        livenessProbe:  # Проба живучести.
+        - containerPort: 8080
+        env:
+        - name: MEDIAWIKI_DATABASE_HOST
+          value: postgres
+        - name: MEDIAWIKI_DATABASE_PORT_NUMBER
+          value: "5432"
+        - name: MEDIAWIKI_DATABASE_NAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-db
+        - name: MEDIAWIKI_DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-user
+        - name: MEDIAWIKI_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: MEDIAWIKI_USERNAME
+          value: admin
+        - name: MEDIAWIKI_PASSWORD
+          value: admin123
+        - name: MEDIAWIKI_EMAIL
+          value: admin@example.com
+        - name: MEDIAWIKI_WIKI_NAME
+          value: "My Wiki"
+        - name: MEDIAWIKI_SERVER_HOST
+          value: "mediawiki.local"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+        livenessProbe:
           httpGet:
-            path: /  # Путь проверки.
-            port: 80  # Порт.
-          initialDelaySeconds: 30  # Задержка.
-          periodSeconds: 10  # Интервал.
-        readinessProbe:  # Проба готовности.
+            path: /
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
           httpGet:
-            path: /  # Путь.
-            port: 80  # Порт.
-          initialDelaySeconds: 5  # Задержка.
-          periodSeconds: 5  # Интервал.
-        volumeMounts:  # Монтирование тома.
-        - mountPath: /var/www/html/LocalSettings.php  # Путь к файлу в контейнере.
-          name: config-volume  # Имя тома.
-          subPath: LocalSettings.php  # Имя файла в PVC.
-      volumes:  # Определение томов.
-      - name: config-volume  # Имя тома.
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
+        volumeMounts:
+        - mountPath: /bitnami/mediawiki
+          name: mediawiki-storage
+      volumes:
+      - name: mediawiki-storage
         persistentVolumeClaim:
-          claimName: mediawiki-config-pvc  # Ссылка на PVC.
+          claimName: mediawiki-pvc
 ---
-apiVersion: v1  # Версия API.
-kind: Service  # Тип: Service.
+apiVersion: v1
+kind: Service
 metadata:
-  name: mediawiki  # Имя сервиса.
-  namespace: mediawiki  # Namespace.
+  name: mediawiki
+  namespace: mediawiki
 spec:
   selector:
-    app: mediawiki  # Селектор подов.
+    app: mediawiki
   ports:
-  - port: 80  # Порт сервиса.
-    targetPort: 80  # Порт в поде.
-  type: ClusterIP  # Тип: внутренний сервис.
+  - port: 80
+    targetPort: 8080
+  type: ClusterIP
